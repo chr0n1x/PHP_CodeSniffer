@@ -39,20 +39,39 @@ abstract class AbstractSniffUnitTest extends PHPUnit_Framework_TestCase
      */
     protected static $phpcs = null;
 
+    /**
+     * Extension of unit tests - can be overwritten by defining TEST_EXT
+     * MUST include the file extension
+     *
+     * @var string
+     */
+    protected static $testExtension = 'UnitTest.php';
+
+    /**
+     * Name of the standard being tested; is set based on this class name
+     *
+     * @var string
+     */
+    protected $testBaseName;
 
     /**
      * Sets up this unit test.
      *
      * @return void
      */
-    protected function setUp()
+    public static function setUpBeforeClass()
     {
-        if (self::$phpcs === null) {
-            self::$phpcs = new PHP_CodeSniffer();
+        if (defined('TEST_EXT')) {
+            self::$testExtension = TEST_EXT;
         }
 
-    }//end setUp()
+        self::$phpcs = new PHP_CodeSniffer();
+    }//end setUpBeforeClass()
 
+    protected function setUp()
+    {
+        $this->testBaseName = rtrim(get_class($this), self::$testExtension);
+    }
 
     /**
      * Should this test be skipped for some reason.
@@ -69,55 +88,36 @@ abstract class AbstractSniffUnitTest extends PHPUnit_Framework_TestCase
     /**
      * Tests the extending classes Sniff class.
      *
+     * @test
      * @return void
      * @throws PHPUnit_Framework_Error
      */
-    protected final function runTest()
+    public final function runTest()
     {
         // Skip this test if we can't run in this environment.
         if ($this->shouldSkipTest() === true) {
             $this->markTestSkipped();
         }
 
-        // The basis for determining file locations.
-        $basename = substr(get_class($this), 0, -8);
-
-        // The name of the coding standard we are testing.
-        $standardName = substr($basename, 0, strpos($basename, '_'));
-
-        // The code of the sniff we are testing.
-        $parts     = explode('_', $basename);
-        $sniffCode = $parts[0].'.'.$parts[2].'.'.$parts[3];
-
-        if (is_file(dirname(__FILE__).'/../../CodeSniffer.php') === true) {
-            // We have not been installed.
-            $standardsDir = realpath(dirname(__FILE__).'/../../CodeSniffer/Standards');
-            $testFileBase = $standardsDir.DIRECTORY_SEPARATOR.str_replace('_', DIRECTORY_SEPARATOR, $basename).'UnitTest.';
-        } else {
-            // The name of the dummy file we are testing.
-            $testFileBase = dirname(__FILE__).DIRECTORY_SEPARATOR.str_replace('_', DIRECTORY_SEPARATOR, $basename).'UnitTest.';
+        if (!defined('TEST_PATH') || realpath(TEST_PATH) === false ) {
+            throw new \Exception('TEST_PATH is not defined');
         }
 
         // Get a list of all test files to check. These will have the same base
         // name but different extensions. We ignore the .php file as it is the class.
         $testFiles = array();
+        $files = $this->getAllFiles(realpath(TEST_PATH));
 
-        $dir = substr($testFileBase, 0, strrpos($testFileBase, DIRECTORY_SEPARATOR));
-        $di  = new DirectoryIterator($dir);
-
-        foreach ($di as $file) {
-            $path = $file->getPathname();
-            if (substr($path, 0, strlen($testFileBase)) === $testFileBase) {
-                if ($path !== $testFileBase.'php') {
-                    $testFiles[] = $path;
-                }
+        foreach ($files as $path) {
+            if (rtrim($path, '.php') === $path ) {
+                $testFiles[] = $path;
             }
         }
 
         // Get them in order.
         sort($testFiles);
 
-        self::$phpcs->process(array(), $standardName, array($sniffCode));
+        self::$phpcs->process(array(), $this->getStandardName(), array($this->getSniffCode()));
         self::$phpcs->setIgnorePatterns(array());
 
         $failureMessages = array();
@@ -328,6 +328,51 @@ abstract class AbstractSniffUnitTest extends PHPUnit_Framework_TestCase
 
     }//end generateFailureMessages()
 
+    /**
+     * Gets the sniff code based on the implmenting class
+     *
+     * @return string
+     */
+    protected function getSniffCode()
+    {
+        // The code of the sniff we are testing.
+        $parts = explode('_', $this->testBaseName);
+
+        return $parts[0].'.'.$parts[2].'.'.$parts[3];
+    }//end getSniffCode()
+
+    /**
+     * Gets the standard name based on current class name
+     *
+     * @return string
+     */
+    protected function getStandardName()
+    {
+        return (defined('STANDARD_PATH')) ? STANDARD_PATH : substr($this->testBaseName, 0, strpos($this->testBaseName, '_'));
+    }//end getStandardName()
+
+    /**
+     * Returns all files in a directory & its subdirs
+     *
+     * @param string Directory
+     * @return array
+     */
+    protected function getAllFiles($dir) {
+        $dir = rtrim($dir, DIRECTORY_SEPARATOR);
+        $items = glob($dir.DIRECTORY_SEPARATOR.'*');
+        $items = array_diff($items, array('.', '..'));
+
+        $files = array();
+
+        foreach ( $items as $key => $file ) {
+            if ( is_dir( $file ) ) {
+              $files = array_merge($files, $this->getAllFiles($file));
+              continue;
+            }
+            $files[] = $file;
+        }
+        return $files;
+    }
 
     /**
      * Returns the lines where errors should occur.
@@ -352,5 +397,3 @@ abstract class AbstractSniffUnitTest extends PHPUnit_Framework_TestCase
 
 
 }//end class
-
-?>
