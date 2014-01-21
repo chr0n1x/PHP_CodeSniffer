@@ -3,11 +3,13 @@ php_codesniffer_tests
 
 Fork of [squizlabs/PHP_CodeSniffer](https://github.com/squizlabs/PHP_CodeSniffer), but *just* the `AbstractSniffUnitTest` class. Why?
 - Now in your `composer.json` you can just 
+
 ```
 "require": {
     "squizlabs/php_codesniffer_tests": "1.0.0"
 }
 ```
+
 and automatically have access to `AbstractSniffUnitTest` in your unit tests when you `require(__DIR__.'/vendor/autoload.php');`
 - allows you to use phpunit xml configuration files and test locally, right in your own standards repo
 - hopefully encourages people to write tests for their PHP_CodeSniffer sniffs!
