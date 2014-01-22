@@ -2,6 +2,8 @@ php_codesniffer_tests
 =====================
 
 Fork of [squizlabs/PHP_CodeSniffer](https://github.com/squizlabs/PHP_CodeSniffer), but *just* the `AbstractSniffUnitTest` class. Why?
+
+- I didn't want to lose any git commit history for this particular file!
 - Now in your `composer.json` you can just 
 
 ```
