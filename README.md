@@ -17,6 +17,8 @@ and automatically have access to `AbstractSniffUnitTest` in your unit tests when
 - hopefully encourages people to write tests for their PHP_CodeSniffer sniffs!
 
 **Differences between this class and the one included with PHP_CodeSniffer:**
+
+- The `runTests()` method is public and marked as a PHPUnit test. Kind of makes sense, right?
 - `TEST_PATH` (**required**)
     - Because this package is installable via `composer` it's conceptually better to define somewhere, somehow, where your tests are located. Also, it's a bit less nebulous.
 - `STANDARD_PATH` (optional)
