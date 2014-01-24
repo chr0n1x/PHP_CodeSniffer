@@ -45,7 +45,7 @@ abstract class AbstractSniffUnitTest extends PHPUnit_Framework_TestCase
      *
      * @var string
      */
-    protected static $testExtension = 'UnitTest.php';
+    protected $testExtension = 'UnitTest.php';
 
     /**
      * Name of the standard being tested; is set based on this class name
@@ -54,24 +54,17 @@ abstract class AbstractSniffUnitTest extends PHPUnit_Framework_TestCase
      */
     protected $testBaseName;
 
-    /**
-     * Sets up this unit test.
-     *
-     * @return void
-     */
-    public static function setUpBeforeClass()
+    protected function setUp()
     {
+
         if (defined('TEST_EXT')) {
-            self::$testExtension = TEST_EXT;
+            $this->testExtension = TEST_EXT;
         }
 
         self::$phpcs = new PHP_CodeSniffer();
-    }//end setUpBeforeClass()
+        $this->testBaseName = preg_replace( "/{$this->testExtension}$/", '', get_class($this));
 
-    protected function setUp()
-    {
-        $this->testBaseName = rtrim(get_class($this), self::$testExtension);
-    }
+    } //end setUp()
 
     /**
      * Should this test be skipped for some reason.
@@ -80,6 +73,7 @@ abstract class AbstractSniffUnitTest extends PHPUnit_Framework_TestCase
      */
     protected function shouldSkipTest()
     {
+
         return false;
 
     }//end shouldSkipTest()
@@ -103,34 +97,24 @@ abstract class AbstractSniffUnitTest extends PHPUnit_Framework_TestCase
             throw new \Exception('TEST_PATH is not defined');
         }
 
-        // Get a list of all test files to check. These will have the same base
-        // name but different extensions. We ignore the .php file as it is the class.
-        $testFiles = array();
-        $files = $this->getAllFiles(realpath(TEST_PATH));
+        $testClassFile = ( new ReflectionClass(get_class($this)) )->getFileName();
+        $testClassFile = realpath( $testClassFile );
+        $testFile      = dirname( $testClassFile ) . '/' . basename( $testClassFile, '.php' ) . '.inc';
 
-        foreach ($files as $path) {
-            if (rtrim($path, '.php') === $path ) {
-                $testFiles[] = $path;
-            }
-        }
-
-        // Get them in order.
-        sort($testFiles);
+        if ( !is_file( $testFile ) ) {
+          $this->fail( "Required file [{$testFile}] not found" );
+        } 
 
         self::$phpcs->process(array(), $this->getStandardName(), array($this->getSniffCode()));
         self::$phpcs->setIgnorePatterns(array());
 
-        $failureMessages = array();
-        foreach ($testFiles as $testFile) {
-            try {
-                $phpcsFile = self::$phpcs->processFile($testFile);
-            } catch (Exception $e) {
-                $this->fail('An unexpected exception has been caught: '.$e->getMessage());
-            }
+        try {
+            $phpcsFile = self::$phpcs->processFile($testFile);
+        } catch (Exception $e) {
+            $this->fail('An unexpected exception has been caught: '.$e->getMessage());
+        }
 
-            $failures        = $this->generateFailureMessages($phpcsFile);
-            $failureMessages = array_merge($failureMessages, $failures);
-        }//end foreach
+        $failureMessages = $this->generateFailureMessages($phpcsFile);
 
         if (empty($failureMessages) === false) {
             $this->fail(implode(PHP_EOL, $failureMessages));
