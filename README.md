@@ -14,6 +14,7 @@ Fork of [squizlabs/PHP_CodeSniffer](https://github.com/squizlabs/PHP_CodeSniffer
 
 and automatically have access to `AbstractSniffUnitTest` in your unit tests when you `require(__DIR__.'/vendor/autoload.php');`
 - allows you to use phpunit xml configuration files and test locally, right in your own standards repo
+- Easy CI integration. Just `composer install && ${RUN_SUITE}`
 - hopefully encourages people to write tests for their PHP_CodeSniffer sniffs!
 
 **Differences between this class and the one included with PHP_CodeSniffer:**
