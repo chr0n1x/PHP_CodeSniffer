@@ -1,5 +1,5 @@
 {
-    "name": "squizlabs/php_codesniffer_tests",
+    "name": "chr0n1x/php_codesniffer_tests",
     "description": "A test lib that can easily be required & used in custom PHP_CodeSniffer rulesets",
     "type": "library",
     "keywords": [
@@ -7,18 +7,6 @@
         "standards",
         "tests"
     ],
-    "homepage": "http://www.squizlabs.com/php-codesniffer",
-    "license": "BSD-3-Clause",
-    "authors": [
-        {
-            "name": "Greg Sherwood",
-            "role": "lead"
-        }
-    ],
-    "support": {
-        "issues": "http://pear.php.net/bugs/search.php?cmd=display&package_name%5B%5D=PHP_CodeSniffer",
-        "source": "https://github.com/squizlabs/PHP_CodeSniffer"
-    },
     "autoload": {
         "classmap": [
             "AbstractSniffUnitTest.php"
@@ -31,6 +19,6 @@
         "php": ">=5.1.2",
         "ext-tokenizer": "*",
         "squizlabs/php_codesniffer": "1.5.1",
-        "phpunit/phpunit": "~3.7.27"
+        "phpunit/phpunit": "~3.7"
     }
 }
