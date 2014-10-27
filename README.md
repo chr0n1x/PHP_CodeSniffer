@@ -8,7 +8,7 @@ Fork of [squizlabs/PHP_CodeSniffer](https://github.com/squizlabs/PHP_CodeSniffer
 
 ```
 "require": {
-    "squizlabs/php_codesniffer_tests": "1.0.0"
+    "chr0n1x/php_codesniffer_tests": "1.0.0"
 }
 ```
 
