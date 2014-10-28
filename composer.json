@@ -18,7 +18,7 @@
     "require": {
         "php": ">=5.1.2",
         "ext-tokenizer": "*",
-        "squizlabs/php_codesniffer": "1.5.1",
-        "phpunit/phpunit": "~3.7"
+        "squizlabs/php_codesniffer": "~1.5",
+        "phpunit/phpunit": ">=3.7"
     }
 }
